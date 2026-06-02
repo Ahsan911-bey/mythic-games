@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String   // Plain text as per requirements
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+
+  cartItems   CartItem[]
+  orders      Order[]
+  userLibrary UserLibrary[]
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  games Game[]
+}
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text
+  price       Float
+  coverImage  String
+  releaseDate DateTime
+  categoryId  Int
+  createdAt   DateTime @default(now())
+
+  category    Category      @relation(fields: [categoryId], references: [id])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  userLibrary UserLibrary[]
+
+  @@index([title])
+}
+
+model CartItem {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  gameId   Int
+  quantity Int @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  totalAmount Float
+  createdAt   DateTime @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id              Int   @id @default(autoincrement())
+  orderId         Int
+  gameId          Int
+  priceAtPurchase Float
+  quantity        Int   @default(1)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  game  Game  @relation(fields: [gameId], references: [id])
+}
+
+model UserLibrary {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  gameId      Int
+  purchasedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
