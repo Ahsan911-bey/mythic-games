@@ -8,6 +8,7 @@ export default function HeroBanner() {
         src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop"
         alt="Hero Banner"
         fill
+        sizes="(max-width: 768px) 100vw, 100vw"
         className="object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
         priority
       />

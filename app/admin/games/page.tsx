@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { createGameAction, deleteGameAction } from '@/app/actions/games';
+import { createGameAction, deleteGameAction, toggleFeaturedAction } from '@/app/actions/games';
 import Image from 'next/image';
 
 export default async function AdminGamesPage() {
@@ -75,18 +75,25 @@ export default async function AdminGamesPage() {
               <tr key={game.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="p-4 flex items-center gap-4">
                   <div className="relative w-12 h-16 rounded overflow-hidden">
-                    <Image src={game.coverImage} alt={game.title} fill className="object-cover" />
+                    <Image src={game.coverImage} alt={game.title} fill sizes="48px" className="object-cover" />
                   </div>
                   <span className="font-bold text-white">{game.title}</span>
                 </td>
                 <td className="p-4 text-gray-300">${game.price.toFixed(2)}</td>
                 <td className="p-4 text-gray-300">{game.category.name}</td>
                 <td className="p-4 text-right">
-                  <form action={deleteGameAction.bind(null, game.id)}>
-                    <button type="submit" className="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 hover:bg-red-500/20 px-3 py-1 rounded transition-colors">
-                      Delete
-                    </button>
-                  </form>
+                  <div className="flex justify-end gap-2">
+                    <form action={toggleFeaturedAction.bind(null, game.id, !game.isFeatured)}>
+                      <button type="submit" className={`text-sm font-bold px-3 py-1 rounded transition-colors ${game.isFeatured ? 'bg-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/30' : 'bg-gray-500/10 text-gray-400 hover:bg-gray-500/20'}`}>
+                        {game.isFeatured ? 'Featured' : 'Feature'}
+                      </button>
+                    </form>
+                    <form action={deleteGameAction.bind(null, game.id)}>
+                      <button type="submit" className="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 hover:bg-red-500/20 px-3 py-1 rounded transition-colors">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}

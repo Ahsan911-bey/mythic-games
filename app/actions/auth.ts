@@ -9,13 +9,13 @@ export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string;
 
   if (!email || !password) {
-    return { error: 'Email and password are required' };
+    throw new Error('Email and password are required');
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || user.password !== password) {
-    return { error: 'Invalid credentials' };
+    throw new Error('Invalid credentials');
   }
 
   await setSession(user.id);
@@ -28,13 +28,13 @@ export async function registerAction(formData: FormData) {
   const password = formData.get('password') as string;
 
   if (!name || !email || !password) {
-    return { error: 'All fields are required' };
+    throw new Error('All fields are required');
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
   if (existingUser) {
-    return { error: 'User already exists' };
+    throw new Error('User already exists');
   }
 
   const user = await prisma.user.create({

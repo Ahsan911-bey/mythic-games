@@ -19,7 +19,7 @@ export async function addToCartAction(gameId: number) {
   });
 
   if (inLibrary) {
-    return { error: 'You already own this game' };
+    throw new Error('You already own this game');
   }
 
   // Check if already in cart
@@ -41,7 +41,7 @@ export async function addToCartAction(gameId: number) {
 
 export async function removeFromCartAction(cartItemId: number) {
   const userId = await getSessionId();
-  if (!userId) return { error: 'Unauthorized' };
+  if (!userId) throw new Error('Unauthorized');
 
   await prisma.cartItem.delete({
     where: { id: cartItemId, userId },
@@ -60,7 +60,7 @@ export async function checkoutAction() {
   });
 
   if (cartItems.length === 0) {
-    return { error: 'Cart is empty' };
+    throw new Error('Cart is empty');
   }
 
   const totalAmount = cartItems.reduce((acc, item) => acc + item.game.price * item.quantity, 0);

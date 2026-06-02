@@ -38,6 +38,8 @@ model Game {
   price       Float
   coverImage  String
   releaseDate DateTime
+  isFeatured  Boolean  @default(false)
+  featuredAt  DateTime?
   categoryId  Int
   createdAt   DateTime @default(now())
 

@@ -13,7 +13,7 @@ async function checkAdmin() {
 }
 
 export async function createGameAction(formData: FormData) {
-  if (!(await checkAdmin())) return { error: 'Unauthorized' };
+  if (!(await checkAdmin())) throw new Error('Unauthorized');
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
@@ -23,7 +23,7 @@ export async function createGameAction(formData: FormData) {
   const categoryId = parseInt(formData.get('categoryId') as string, 10);
 
   if (!title || !description || isNaN(price) || !coverImage || !releaseDateStr || isNaN(categoryId)) {
-    return { error: 'All fields are required' };
+    throw new Error('All fields are required');
   }
 
   await prisma.game.create({
@@ -44,7 +44,7 @@ export async function createGameAction(formData: FormData) {
 }
 
 export async function deleteGameAction(gameId: number) {
-  if (!(await checkAdmin())) return { error: 'Unauthorized' };
+  if (!(await checkAdmin())) throw new Error('Unauthorized');
 
   await prisma.game.delete({ where: { id: gameId } });
 
@@ -52,3 +52,19 @@ export async function deleteGameAction(gameId: number) {
   revalidatePath('/');
   revalidatePath('/games');
 }
+
+export async function toggleFeaturedAction(gameId: number, isFeatured: boolean) {
+  if (!(await checkAdmin())) throw new Error('Unauthorized');
+
+  await prisma.game.update({
+    where: { id: gameId },
+    data: { 
+      isFeatured,
+      featuredAt: isFeatured ? new Date() : null 
+    },
+  });
+
+  revalidatePath('/admin/games');
+  revalidatePath('/');
+}
+
